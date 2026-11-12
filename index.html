@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Drift Sentinel — OpenAPI & Swagger Breaking Change Detector</title>
+  <meta name="description" content="Local-first breaking change & drift detector for OpenAPI 3.0, 3.1 and Swagger 2.0 specs. Catch breaking changes before production with zero marginal API cost.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf2f8',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans transition-colors duration-200">
+
+  <!-- TOP STATUS BANNER -->
+  <div class="no-print bg-slate-900 border-b border-slate-800 py-2 px-4 text-xs font-mono text-slate-400 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>Engine: OpenAPI 3.0 / 3.1 & Swagger 2.0 Semantic Diff &bull; Local-First &bull; 0€ Token Cost</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-slate-400">Zero Server Storage &bull; Private &bull; 100% In-Browser Analysis</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="no-print border-b border-slate-800 bg-slate-900/90 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400">
+          <i data-lucide="git-compare" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+              API Drift Sentinel
+              <span class="text-xs px-2 py-0.5 rounded font-mono font-medium bg-pink-500/10 text-pink-400 border border-pink-500/20">v1.0</span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">OpenAPI & Swagger Semantic Breaking Change Detector</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="openProModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white shadow-sm transition">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Pro Lifetime $39</span>
+        </button>
+
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Toggle Theme">
+          <i data-lucide="sun" id="themeIcon" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+
+    <!-- HERO INTRODUCTION (No-print) -->
+    <div class="no-print bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-64 h-64 bg-pink-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-3">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+          <span>Prevent Production Outages from Silent API Breaking Changes</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
+          Compare OpenAPI Specs & Catch Breaking Drift
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+          Detect removed endpoints, altered parameter types, new required fields, and deleted enum values. Run semantic diffs between API releases before pushing to production or updating client SDKs.
+        </p>
+      </div>
+    </div>
+
+    <!-- WORKBENCH / SPLIT INPUT (No-print) -->
+    <section class="no-print bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col gap-5">
+      
+      <!-- Quick Sample Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <span class="text-xs font-mono text-slate-400">Quick Test Specs:</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="loadSample('breaking')" class="px-2.5 py-1 rounded text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition flex items-center gap-1.5" title="Simulate breaking changes (Stripe/Payment API)">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            <span>Breaking API Drift</span>
+          </button>
+          <button onclick="loadSample('non_breaking')" class="px-2.5 py-1 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition flex items-center gap-1.5" title="Simulate backward-compatible additions (Petstore)">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Safe Evolution</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Split Spec Editors -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Left: Spec A -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+              <span>Base Spec (v1 / Current Production)</span>
+            </span>
+            <span id="lenSpecA" class="text-slate-500">0 lines</span>
+          </div>
+          <textarea id="specAInput" rows="12" placeholder="Paste Base OpenAPI/Swagger JSON here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition resize-y"></textarea>
+        </div>
+
+        <!-- Right: Spec B -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+              <span>Target Spec (v2 / Proposed Update)</span>
+            </span>
+            <span id="lenSpecB" class="text-slate-500">0 lines</span>
+          </div>
+          <textarea id="specBInput" rows="12" placeholder="Paste Target OpenAPI/Swagger JSON here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition resize-y"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <div class="flex items-center gap-3">
+          <button id="runDiffBtn" onclick="executeDiff()" class="px-6 py-2.5 rounded-xl font-semibold text-sm bg-pink-500 hover:bg-pink-400 text-slate-950 flex items-center gap-2 shadow-lg shadow-pink-500/20 transition active:scale-95">
+            <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+            <span>Run Semantic Drift Diff</span>
+          </button>
+          <button onclick="clearSpecs()" class="px-4 py-2.5 rounded-xl font-medium text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Clear
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-500 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-3.5 h-3.5 text-pink-400"></i>
+          <span>Instant client-side AST comparison. Zero latency, 100% private.</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PRINT HEADER -->
+    <div class="print-only hidden p-4 border-b border-slate-300 mb-6">
+      <h1 class="text-2xl font-bold text-black">API Drift Sentinel — Breaking Change Analysis Report</h1>
+      <p class="text-xs text-slate-600">Generated by API Drift Sentinel Semantic Engine</p>
+    </div>
+
+    <!-- AUDIT RESULTS CONTAINER -->
+    <section id="resultsSection" class="hidden flex-col gap-6">
+
+      <!-- BREAKING CHANGE WARNING BANNER -->
+      <div id="breakingAlertBanner" class="hidden bg-rose-950/40 border-2 border-rose-500/60 rounded-xl p-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+            <i data-lucide="alert-octagon" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold text-rose-300 uppercase tracking-wide">CI/CD Gate Alert: Breaking Changes Detected</h4>
+            <p class="text-xs text-rose-400/90 mt-0.5">This release introduces breaking API schema mutations that will break existing SDKs and client integrations. A MAJOR SemVer increment is required.</p>
+          </div>
+        </div>
+        <button onclick="filterChanges('BREAKING')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500 hover:bg-rose-400 text-white shrink-0 transition">
+          Inspect Breaking Diff
+        </button>
+      </div>
+
+      <!-- EXECUTIVE SUMMARY METRIC CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Stability Score -->
+        <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Stability Score</span>
+          <div class="flex items-baseline gap-2 my-2">
+            <span id="scoreValue" class="text-4xl font-extrabold text-emerald-400">100</span>
+            <span class="text-xs font-mono text-slate-400">/ 100</span>
+          </div>
+          <span id="scoreLabel" class="text-xs font-medium text-emerald-400 flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            <span>Backward Compatible</span>
+          </span>
+        </div>
+
+        <!-- Breaking Changes -->
+        <div class="audit-card bg-slate-900 border border-rose-500/30 rounded-xl p-5 flex flex-col justify-between bg-rose-950/10" id="breakingCard">
+          <span class="text-xs font-mono text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-rose-500" id="breakingPulse"></span>
+            <span>Breaking Changes</span>
+          </span>
+          <div class="text-3xl font-bold text-rose-400 my-2" id="statBreaking">0</div>
+          <span class="text-xs text-rose-400/80 font-medium" id="statBreakingSub">No breaking drift</span>
+        </div>
+
+        <!-- Non-Breaking Changes -->
+        <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Non-Breaking Additions</span>
+          <div class="text-3xl font-bold text-white my-2" id="statNonBreaking">0</div>
+          <span class="text-xs text-slate-400">Safe expansions</span>
+        </div>
+
+        <!-- SemVer Recommendation -->
+        <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">SemVer Recommendation</span>
+          <div class="text-2xl font-bold text-sky-400 my-2" id="statSemVer">PATCH</div>
+          <span class="text-xs text-slate-400" id="statSemVerSub">Bugfix / Minor documentation</span>
+        </div>
+
+      </div>
+
+      <!-- FILTER & EXPORT TOOLBAR -->
+      <div class="export-toolbar flex flex-wrap items-center justify-between gap-4 bg-slate-900/80 border border-slate-800 rounded-xl p-4">
+        
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-mono text-slate-400 mr-2">Filter:</span>
+          <button onclick="filterChanges('ALL')" id="filter-ALL" class="px-3 py-1 rounded-lg text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30 transition">
+            All (<span id="count-ALL">0</span>)
+          </button>
+          <button onclick="filterChanges('BREAKING')" id="filter-BREAKING" class="px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-rose-400 hover:text-rose-300 transition">
+            Breaking (<span id="count-BREAKING">0</span>)
+          </button>
+          <button onclick="filterChanges('NON_BREAKING')" id="filter-NON_BREAKING" class="px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-emerald-400 hover:text-emerald-300 transition">
+            Non-Breaking (<span id="count-NON_BREAKING">0</span>)
+          </button>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="downloadMarkdown()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+            <i data-lucide="file-down" class="w-3.5 h-3.5 text-pink-400"></i>
+            <span>Export Changelog (.md)</span>
+          </button>
+          <button onclick="downloadJSON()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+            <i data-lucide="code" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Export JSON</span>
+          </button>
+          <button onclick="window.print()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+            <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Print / PDF</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- DETAILED CHANGES LIST -->
+      <div id="changesContainer" class="flex flex-col gap-4 font-mono text-xs">
+        <!-- Dynamically rendered change items -->
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="no-print mt-auto border-t border-slate-800/80 pt-8 pb-12 flex flex-col gap-6 text-xs text-slate-500">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <h4 class="font-semibold text-slate-300 text-sm mb-2 flex items-center gap-2">
+            <i data-lucide="git-branch" class="w-4 h-4 text-pink-400"></i>
+            <span>Semantic Spec Comparison</span>
+          </h4>
+          <p class="leading-relaxed">
+            Parses full OpenAPI 3.0, 3.1 and Swagger 2.0 Abstract Syntax Trees (ASTs) in client memory. Compares paths, HTTP verbs, parameters, schemas, and status codes.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-slate-300 text-sm mb-2 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+            <span>CI/CD Quality Gate</span>
+          </h4>
+          <p class="leading-relaxed">
+            Integrates into GitHub Actions pipelines to automatically block pull requests that introduce breaking API changes without a major SemVer increment.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-slate-300 text-sm mb-2 flex items-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4 text-sky-400"></i>
+            <span>100% Private & Local-First</span>
+          </h4>
+          <p class="leading-relaxed">
+            Proprietary internal API specifications never leave your browser. Zero cloud dependencies, zero latency, zero third-party AI tokens consumed.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between border-t border-slate-800/60 pt-4 gap-2">
+        <div class="flex items-center gap-4">
+          <span>&copy; 2026 API Drift Sentinel.</span>
+          <a href="#" onclick="openProModal(); return false;" class="text-pink-400 hover:underline">Sentinel Pro</a>
+        </div>
+        <div class="font-mono text-slate-600">
+          Built for Backend Developers, Platform Engineers & API Architects
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- PRO UPGRADE MODAL -->
+  <div id="proModal" class="no-print fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-pink-500/30 rounded-2xl max-w-xl w-full p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-48 h-48 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white">API Drift Sentinel Pro</h3>
+            <p class="text-xs text-slate-400">Continuous CI/CD Quality Gate & Scheduled URL Monitors</p>
+          </div>
+        </div>
+        <button onclick="closeProModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 mb-8">
+        <div class="flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <strong class="text-sm text-slate-200">GitHub Actions CI/CD Quality Gate</strong>
+            <p class="text-xs text-slate-400">Fail git builds automatically when pull requests introduce unversioned breaking changes.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <strong class="text-sm text-slate-200">Scheduled URL Drift Webhooks</strong>
+            <p class="text-xs text-slate-400">Periodically poll production API specs and dispatch Slack/Discord alerts on silent breaking changes.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <strong class="text-sm text-slate-200">Interactive Visual Schema Tree Diff</strong>
+            <p class="text-xs text-slate-400">Deep visual inspection of nested JSON schema models, payloads, and response bodies.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-4 flex items-center justify-between mb-6">
+        <div>
+          <span class="text-xs font-mono text-slate-400 uppercase">Lifetime Access</span>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-white">$39</span>
+            <span class="text-xs text-slate-400 line-through">$79</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 font-mono">One-Time Payment</span>
+          </div>
+        </div>
+        <a href="https://payhip.com" target="_blank" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-pink-500 hover:bg-pink-400 text-slate-950 flex items-center gap-1.5 shadow-lg shadow-pink-500/20 transition">
+          <span>Get Pro Access</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+      <p class="text-center text-xs text-slate-500">
+        Instant license key &bull; Merchant of Record secured &bull; 30-day money-back guarantee
+      </p>
+    </div>
+  </div>
+
+  <!-- LOAD ENGINE SCRIPT -->
+  <script src="engine.js"></script>
+
+  <!-- APPLICATION UI LOGIC -->
+  <script>
+    let currentFilter = 'ALL';
+    let currentDiff = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      setupInputTracking();
+    });
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light');
+      const icon = document.getElementById('themeIcon');
+      if (isLight) {
+        icon.setAttribute('data-lucide', 'moon');
+      } else {
+        icon.setAttribute('data-lucide', 'sun');
+      }
+      lucide.createIcons();
+    }
+
+    function setupInputTracking() {
+      const specA = document.getElementById('specAInput');
+      const specB = document.getElementById('specBInput');
+
+      specA.addEventListener('input', () => {
+        document.getElementById('lenSpecA').innerText = `${specA.value.split('\n').length} lines`;
+      });
+      specB.addEventListener('input', () => {
+        document.getElementById('lenSpecB').innerText = `${specB.value.split('\n').length} lines`;
+      });
+    }
+
+    function loadSample(type) {
+      const sample = SAMPLE_API_SPECS[type];
+      if (!sample) return;
+      document.getElementById('specAInput').value = sample.specA;
+      document.getElementById('specBInput').value = sample.specB;
+      document.getElementById('lenSpecA').innerText = `${sample.specA.split('\n').length} lines`;
+      document.getElementById('lenSpecB').innerText = `${sample.specB.split('\n').length} lines`;
+    }
+
+    function clearSpecs() {
+      document.getElementById('specAInput').value = '';
+      document.getElementById('specBInput').value = '';
+      document.getElementById('lenSpecA').innerText = '0 lines';
+      document.getElementById('lenSpecB').innerText = '0 lines';
+    }
+
+    function executeDiff() {
+      const rawA = document.getElementById('specAInput').value;
+      const rawB = document.getElementById('specBInput').value;
+
+      if (!rawA.trim() || !rawB.trim()) {
+        alert("Please paste both Base Spec (v1) and Target Spec (v2) before comparing.");
+        return;
+      }
+
+      try {
+        currentDiff = window.apiDriftEngine.compareSpecs(rawA, rawB);
+        renderDiffResults(currentDiff);
+      } catch (err) {
+        alert(`Error comparing specs: ${err.message}`);
+      }
+    }
+
+    function renderDiffResults(diff) {
+      const section = document.getElementById('resultsSection');
+      section.classList.remove('hidden');
+      section.classList.add('flex');
+
+      // Metric Cards
+      document.getElementById('scoreValue').innerText = diff.score;
+      document.getElementById('statBreaking').innerText = diff.breakingCount;
+      document.getElementById('statNonBreaking').innerText = diff.nonBreakingCount;
+
+      // SemVer Recommendation
+      const semVerEl = document.getElementById('statSemVer');
+      const semVerSubEl = document.getElementById('statSemVerSub');
+      if (diff.breakingCount > 0) {
+        semVerEl.innerText = "MAJOR (x.0.0)";
+        semVerEl.className = "text-2xl font-bold text-rose-400 my-2";
+        semVerSubEl.innerText = "Breaking change requires major version";
+      } else if (diff.nonBreakingCount > 0) {
+        semVerEl.innerText = "MINOR (1.x.0)";
+        semVerEl.className = "text-2xl font-bold text-emerald-400 my-2";
+        semVerSubEl.innerText = "Backward-compatible feature additions";
+      } else {
+        semVerEl.innerText = "PATCH (1.0.x)";
+        semVerEl.className = "text-2xl font-bold text-sky-400 my-2";
+        semVerSubEl.innerText = "Metadata / documentation update";
+      }
+
+      // Breaking Banner & Pulse
+      const breakingBanner = document.getElementById('breakingAlertBanner');
+      const breakingCard = document.getElementById('breakingCard');
+      const breakingPulse = document.getElementById('breakingPulse');
+      const scoreEl = document.getElementById('scoreValue');
+      const scoreLabel = document.getElementById('scoreLabel');
+
+      if (diff.isBreaking) {
+        breakingBanner.classList.remove('hidden');
+        breakingBanner.classList.add('flex');
+        breakingCard.classList.add('retraction-glow');
+        breakingPulse.classList.add('animate-ping');
+        document.getElementById('statBreakingSub').innerText = `⚠️ ${diff.breakingCount} breaking mutations`;
+
+        scoreEl.className = "text-4xl font-extrabold text-rose-400";
+        scoreLabel.innerHTML = `<i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i><span>Breaking Changes Detected</span>`;
+        scoreLabel.className = "text-xs font-medium text-rose-400 flex items-center gap-1";
+      } else {
+        breakingBanner.classList.add('hidden');
+        breakingBanner.classList.remove('flex');
+        breakingCard.classList.remove('retraction-glow');
+        breakingPulse.classList.remove('animate-ping');
+        document.getElementById('statBreakingSub').innerText = "Clean backward compatibility";
+
+        scoreEl.className = "text-4xl font-extrabold text-emerald-400";
+        scoreLabel.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i><span>Backward Compatible</span>`;
+        scoreLabel.className = "text-xs font-medium text-emerald-400 flex items-center gap-1";
+      }
+
+      // Filter Counts
+      document.getElementById('count-ALL').innerText = diff.totalChanges;
+      document.getElementById('count-BREAKING').innerText = diff.breakingCount;
+      document.getElementById('count-NON_BREAKING').innerText = diff.nonBreakingCount;
+
+      renderChangeItems(diff.changes);
+      lucide.createIcons();
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderChangeItems(changes) {
+      const container = document.getElementById('changesContainer');
+      container.innerHTML = '';
+
+      const filtered = changes.filter(c => {
+        if (currentFilter === 'ALL') return true;
+        return c.severity === currentFilter;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-500 font-mono text-xs bg-slate-900 border border-slate-800 rounded-xl">No changes match the selected filter.</div>`;
+        return;
+      }
+
+      filtered.forEach((c, idx) => {
+        const item = document.createElement('div');
+        const isBrk = c.severity === 'BREAKING';
+        item.className = `bg-slate-900/90 border ${isBrk ? 'border-rose-500/40 bg-rose-950/10' : 'border-slate-800'} rounded-xl p-4 flex flex-col gap-2 transition`;
+
+        let badge = '';
+        if (isBrk) {
+          badge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30"><i data-lucide="alert-octagon" class="w-3 h-3"></i>BREAKING</span>`;
+        } else if (c.severity === 'NON_BREAKING') {
+          badge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i data-lucide="check" class="w-3 h-3"></i>NON-BREAKING</span>`;
+        } else {
+          badge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">INFO</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500">#${idx + 1}</span>
+              ${badge}
+              <span class="text-pink-400 font-bold">${escapeHtml(c.type)}</span>
+            </div>
+            <code class="text-slate-300 font-bold text-xs bg-slate-950 px-2 py-0.5 rounded border border-slate-800">${escapeHtml(c.path)}</code>
+          </div>
+          <div class="text-slate-200 font-sans text-sm">${escapeHtml(c.message)}</div>
+          <div class="text-xs text-slate-400 font-sans">${escapeHtml(c.details)}</div>
+        `;
+
+        container.appendChild(item);
+      });
+    }
+
+    function filterChanges(filter) {
+      currentFilter = filter;
+      const filters = ['ALL', 'BREAKING', 'NON_BREAKING'];
+      filters.forEach(f => {
+        const btn = document.getElementById(`filter-${f}`);
+        if (!btn) return;
+        if (f === filter) {
+          btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30 transition";
+        } else {
+          btn.className = "px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-400 hover:text-slate-200 transition";
+        }
+      });
+      if (currentDiff) {
+        renderChangeItems(currentDiff.changes);
+        lucide.createIcons();
+      }
+    }
+
+    function downloadMarkdown() {
+      if (!currentDiff) return;
+      const md = window.apiDriftEngine.generateMarkdownChangelog(currentDiff);
+      downloadBlob(md, 'api-drift-changelog.md', 'text/markdown');
+    }
+
+    function downloadJSON() {
+      if (!currentDiff) return;
+      const json = JSON.stringify(currentDiff, null, 2);
+      downloadBlob(json, 'api-drift-report.json', 'application/json');
+    }
+
+    function downloadBlob(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function openProModal() {
+      document.getElementById('proModal').classList.remove('hidden');
+      document.getElementById('proModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeProModal() {
+      document.getElementById('proModal').classList.add('hidden');
+      document.getElementById('proModal').classList.remove('flex');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+/* API Drift Sentinel Terminal Styling & Print Rules */
+:root {
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --text-main: #f8fafc;
+  --border-color: #1e293b;
+  --accent-pink: #ec4899;
+  --accent-rose: #f43f5e;
+  --accent-emerald: #10b981;
+}
+
+body.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-main: #0f172a;
+  --border-color: #e2e8f0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Breaking Change Pulse */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+.retraction-glow {
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.35);
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
+
+/* Print Rules */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10.5pt;
+  }
+  .no-print, header, .export-toolbar, footer, #proModal {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .audit-card, #changesContainer > div {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    page-break-inside: avoid;
+    margin-bottom: 10pt;
+  }
+  code {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+}
