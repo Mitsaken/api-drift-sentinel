@@ -98,6 +98,14 @@
         <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
           Detect removed endpoints, altered parameter types, new required fields, and deleted enum values. Run semantic diffs between API releases before pushing to production or updating client SDKs.
         </p>
+        <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <span class="px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60">
+            <strong class="text-slate-200">Free Browser Suite:</strong> Interactive AST diff + Markdown/JSON export
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-pink-500/10 border border-pink-500/20 text-pink-300">
+            <strong>Pro ($29 One-Time):</strong> Headless CLI (<code>--fail-on-breaking</code>), GitHub Actions Gate &amp; Self-Hosted URL Cron
+          </span>
+        </div>
       </div>
     </div>
 
@@ -175,10 +183,23 @@
     </div>
 
     <!-- AUDIT RESULTS CONTAINER -->
-    <section id="resultsSection" class="hidden flex-col gap-6">
+    <section id="resultsSection" hidden class="hidden flex-col gap-6">
+
+      <!-- SAMPLE DEMO DATASET BANNER -->
+      <div id="sampleDemoBanner" hidden class="hidden bg-sky-950/40 border border-sky-500/40 rounded-xl p-3.5 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+            <i data-lucide="flask-conical" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-sky-300 uppercase tracking-wide">Sample Demo Dataset</h4>
+            <p class="text-xs text-slate-300 mt-0.5">Showing diff results for a built-in demonstration spec pair. Paste your own v1 and v2 OpenAPI specs above for a live audit.</p>
+          </div>
+        </div>
+      </div>
 
       <!-- BREAKING CHANGE WARNING BANNER -->
-      <div id="breakingAlertBanner" class="hidden bg-rose-950/40 border-2 border-rose-500/60 rounded-xl p-4 flex items-center justify-between gap-4">
+      <div id="breakingAlertBanner" hidden class="hidden bg-rose-950/40 border-2 border-rose-500/60 rounded-xl p-4 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
             <i data-lucide="alert-octagon" class="w-6 h-6"></i>
@@ -200,12 +221,12 @@
         <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
           <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Stability Score</span>
           <div class="flex items-baseline gap-2 my-2">
-            <span id="scoreValue" class="text-4xl font-extrabold text-emerald-400">100</span>
+            <span id="scoreValue" class="text-4xl font-extrabold text-slate-400">--</span>
             <span class="text-xs font-mono text-slate-400">/ 100</span>
           </div>
-          <span id="scoreLabel" class="text-xs font-medium text-emerald-400 flex items-center gap-1">
-            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-            <span>Backward Compatible</span>
+          <span id="scoreLabel" class="text-xs font-medium text-slate-400 flex items-center gap-1">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span>Awaiting Diff</span>
           </span>
         </div>
 
@@ -215,22 +236,22 @@
             <span class="w-2 h-2 rounded-full bg-rose-500" id="breakingPulse"></span>
             <span>Breaking Changes</span>
           </span>
-          <div class="text-3xl font-bold text-rose-400 my-2" id="statBreaking">0</div>
-          <span class="text-xs text-rose-400/80 font-medium" id="statBreakingSub">No breaking drift</span>
+          <div class="text-3xl font-bold text-rose-400 my-2" id="statBreaking">--</div>
+          <span class="text-xs text-rose-400/80 font-medium" id="statBreakingSub">Pending diff</span>
         </div>
 
         <!-- Non-Breaking Changes -->
         <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
           <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Non-Breaking Additions</span>
-          <div class="text-3xl font-bold text-white my-2" id="statNonBreaking">0</div>
+          <div class="text-3xl font-bold text-white my-2" id="statNonBreaking">--</div>
           <span class="text-xs text-slate-400">Safe expansions</span>
         </div>
 
         <!-- SemVer Recommendation -->
         <div class="audit-card bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
           <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">SemVer Recommendation</span>
-          <div class="text-2xl font-bold text-sky-400 my-2" id="statSemVer">PATCH</div>
-          <span class="text-xs text-slate-400" id="statSemVerSub">Bugfix / Minor documentation</span>
+          <div class="text-2xl font-bold text-sky-400 my-2" id="statSemVer">--</div>
+          <span class="text-xs text-slate-400" id="statSemVerSub">Pending diff</span>
         </div>
 
       </div>
@@ -348,8 +369,8 @@
             <i data-lucide="check" class="w-3.5 h-3.5"></i>
           </div>
           <div>
-            <strong class="text-sm text-slate-200">GitHub Actions CI/CD Quality Gate</strong>
-            <p class="text-xs text-slate-400">Fail git builds automatically when pull requests introduce unversioned breaking changes.</p>
+            <strong class="text-sm text-slate-200">Headless CLI (<code>--fail-on-breaking</code>) &amp; GitHub Actions Gate</strong>
+            <p class="text-xs text-slate-400">Fail CI builds automatically when pull requests introduce unversioned breaking changes.</p>
           </div>
         </div>
 
@@ -358,8 +379,8 @@
             <i data-lucide="check" class="w-3.5 h-3.5"></i>
           </div>
           <div>
-            <strong class="text-sm text-slate-200">Scheduled URL Drift Webhooks</strong>
-            <p class="text-xs text-slate-400">Periodically poll production API specs and dispatch Slack/Discord alerts on silent breaking changes.</p>
+            <strong class="text-sm text-slate-200">Self-Hosted Scheduled URL Drift Watchers</strong>
+            <p class="text-xs text-slate-400">Run scheduled GitHub Actions / cron jobs in your own infrastructure to poll API specs and dispatch Slack/Discord webhook alerts.</p>
           </div>
         </div>
 
@@ -368,8 +389,8 @@
             <i data-lucide="check" class="w-3.5 h-3.5"></i>
           </div>
           <div>
-            <strong class="text-sm text-slate-200">Interactive Visual Schema Tree Diff</strong>
-            <p class="text-xs text-slate-400">Deep visual inspection of nested JSON schema models, payloads, and response bodies.</p>
+            <strong class="text-sm text-slate-200">Deep Nested Schema Tree Diff</strong>
+            <p class="text-xs text-slate-400">Deep inspection of nested JSON schema models, payloads, and response bodies beyond the free browser quick-diff.</p>
           </div>
         </div>
       </div>
@@ -419,14 +440,18 @@
       lucide.createIcons();
     }
 
+    let isSampleMode = false;
+
     function setupInputTracking() {
       const specA = document.getElementById('specAInput');
       const specB = document.getElementById('specBInput');
 
       specA.addEventListener('input', () => {
+        isSampleMode = false;
         document.getElementById('lenSpecA').innerText = `${specA.value.split('\n').length} lines`;
       });
       specB.addEventListener('input', () => {
+        isSampleMode = false;
         document.getElementById('lenSpecB').innerText = `${specB.value.split('\n').length} lines`;
       });
     }
@@ -438,6 +463,7 @@
       document.getElementById('specBInput').value = sample.specB;
       document.getElementById('lenSpecA').innerText = `${sample.specA.split('\n').length} lines`;
       document.getElementById('lenSpecB').innerText = `${sample.specB.split('\n').length} lines`;
+      isSampleMode = true;
     }
 
     function clearSpecs() {
@@ -445,6 +471,7 @@
       document.getElementById('specBInput').value = '';
       document.getElementById('lenSpecA').innerText = '0 lines';
       document.getElementById('lenSpecB').innerText = '0 lines';
+      isSampleMode = false;
     }
 
     function executeDiff() {
@@ -466,8 +493,16 @@
 
     function renderDiffResults(diff) {
       const section = document.getElementById('resultsSection');
+      section.hidden = false;
       section.classList.remove('hidden');
       section.classList.add('flex');
+
+      const sampleBanner = document.getElementById('sampleDemoBanner');
+      if (sampleBanner) {
+        sampleBanner.hidden = !isSampleMode;
+        sampleBanner.classList.toggle('hidden', !isSampleMode);
+        sampleBanner.classList.toggle('flex', isSampleMode);
+      }
 
       // Metric Cards
       document.getElementById('scoreValue').innerText = diff.score;
@@ -499,6 +534,7 @@
       const scoreLabel = document.getElementById('scoreLabel');
 
       if (diff.isBreaking) {
+        breakingBanner.hidden = false;
         breakingBanner.classList.remove('hidden');
         breakingBanner.classList.add('flex');
         breakingCard.classList.add('retraction-glow');
@@ -509,6 +545,7 @@
         scoreLabel.innerHTML = `<i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i><span>Breaking Changes Detected</span>`;
         scoreLabel.className = "text-xs font-medium text-rose-400 flex items-center gap-1";
       } else {
+        breakingBanner.hidden = true;
         breakingBanner.classList.add('hidden');
         breakingBanner.classList.remove('flex');
         breakingCard.classList.remove('retraction-glow');
