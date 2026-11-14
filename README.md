@@ -59,11 +59,12 @@ node cli.js --base openapi-v1.json --target openapi-v2.json --json
 
 ---
 
-## 💼 Pro Tier ($39 Lifetime / $19 mo)
+## 💼 Pro Tier ($29 One-Time License)
 
-- **GitHub Actions CI/CD Quality Gate:** Automatically block pull requests with breaking changes.
-- **Scheduled URL Drift Webhooks:** Poll production API specs daily and send Discord/Slack alerts.
+- **GitHub Actions CI/CD Quality Gate:** Automatically block pull requests with breaking changes via the headless CLI.
+- **Self-Hosted Scheduled URL Drift Checks:** Poll production API specs daily using your own GitHub Actions cron / CLI workflow and trigger Discord/Slack alerts (zero external cloud servers or data leaves your runner).
 - **Deep Schema Tree Diff:** Visual inspection of nested payload objects.
+- 👉 [Get API Drift Sentinel Pro on Polar.sh ($29)](https://buy.polar.sh/polar_cl_XHomVs9mGSyqCwfsrt5ltKGCSk4uChCfwjJh23DtiBB)
 
 ---
 
