@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://conversionlogic-waitlist.conversionlogic.workers.dev; base-uri 'none'; form-action 'self' https://conversionlogic-waitlist.conversionlogic.workers.dev">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="TbQiOlV9inpmQskmAp9DLlirtIKnQA6jMJTxacC56JY" />
+  <meta name="robots" content="index, follow" />
+  <title>API Drift Sentinel — OpenAPI 3.1 &amp; Swagger Breaking Change Diff Workbench</title>
+  <meta name="description" content="Free local-first OpenAPI 3.0/3.1 and Swagger 2.0 breaking change detector. Parse YAML 1.2 and JSON ASTs in browser memory, verify backward and forward schema compatibility, and export Markdown, JSON, or SARIF 2.1.0." />
+  <link rel="canonical" href="https://mitsaken.github.io/api-drift-sentinel/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Conversionlogic" />
+  <meta property="og:title" content="API Drift Sentinel — OpenAPI &amp; Swagger Breaking Change Detector" />
+  <meta property="og:description" content="Detect breaking API contract drift, removed endpoints, enum narrowing, and required-field mutations across OpenAPI 3.0/3.1 &amp; Swagger 2.0 directly in browser memory." />
+  <meta property="og:url" content="https://mitsaken.github.io/api-drift-sentinel/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="API Drift Sentinel — OpenAPI Breaking Change Workbench" />
+  <meta name="twitter:description" content="Zero-upload semantic AST diff for OpenAPI 3.0/3.1 &amp; Swagger 2.0 with YAML 1.2 parsing and SARIF 2.1.0 export." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "API Drift Sentinel",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://mitsaken.github.io/api-drift-sentinel/",
+        "description": "Local-first semantic AST diff workbench for OpenAPI 3.0, 3.1, and Swagger 2.0 specs with self-hosted YAML 1.2 parsing, backward and forward compatibility rules, SemVer guidance, and SARIF 2.1.0 export.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Conversionlogic"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does API Drift Sentinel upload my OpenAPI or Swagger specifications to external servers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Specification parsing, internal $ref resolution, and AST diffing execute strictly inside your local browser memory with zero backend upload and zero third-party network requests."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which OpenAPI versions and breaking change rules are checked?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "API Drift Sentinel supports OpenAPI 3.0, OpenAPI 3.1 (including type-null union equivalence), and Swagger 2.0 in JSON or YAML 1.2. It checks removed paths and methods, security schemes, request/response media types, asymmetric enum mutations, allOf/oneOf/anyOf composition, and readOnly/writeOnly rules."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does API Drift Sentinel Pro add beyond the free web workbench and CLI?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The free web app and cli.js handle single-file specs with Markdown, JSON, and SARIF 2.1.0 output. API Drift Sentinel Pro (planned 24 EUR one-time launch price, currently 0 EUR Priority Waitlist) adds a zero-dependency multi-file $ref bundler for split YAML/JSON folders, multi-version changelog archive tooling, Slack/Discord webhook payload formatting, and GitHub Actions SARIF PR gates."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- COMPACT 50px HEADER -->
+  <header class="site-header no-print">
+    <div class="header-inner">
+      <div class="brand-lockup">
+        <a href="#" class="brand-title">API Drift Sentinel</a>
+        <span class="brand-subtitle">OpenAPI 3.0 / 3.1 &amp; Swagger 2.0 Semantic Diff · Browser Memory</span>
+      </div>
+      <div class="header-actions">
+        <a href="#pro-waitlist" class="btn btn-secondary btn-sm">CI/CD Gate &amp; CLI (Waitlist)</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="workbench-main">
+
+    <!-- SPEC INPUTS -->
+    <section class="spec-panel no-print" aria-label="OpenAPI spec comparison workbench">
+      <div class="spec-bar">
+        <h1 class="workbench-h1">Contract Diff Workbench</h1>
+        <div class="samples-row">
+          <span>Quick test specs:</span>
+          <button type="button" class="text-action" data-sample="breaking">Breaking payment drift</button>
+          <button type="button" class="text-action" data-sample="non_breaking">Safe Petstore evolution</button>
+        </div>
+      </div>
+
+      <div class="specs-grid">
+        <div class="spec-col">
+          <div class="spec-col-head">
+            <label for="specAInput" class="spec-label">Base Spec (v1 / Current Production)</label>
+            <div class="spec-meta tnum">
+              <label for="fileSpecA" class="text-action pointer">Load file</label>
+              <input type="file" id="fileSpecA" accept=".json,.yaml,.yml" hidden />
+              <span id="lenSpecA" class="mono">0 lines</span>
+            </div>
+          </div>
+          <textarea id="specAInput" class="spec-textarea" rows="10" placeholder="Paste Base OpenAPI/Swagger JSON or YAML here..."></textarea>
+        </div>
+
+        <div class="spec-col">
+          <div class="spec-col-head">
+            <label for="specBInput" class="spec-label">Target Spec (v2 / Proposed Update)</label>
+            <div class="spec-meta tnum">
+              <label for="fileSpecB" class="text-action pointer">Load file</label>
+              <input type="file" id="fileSpecB" accept=".json,.yaml,.yml" hidden />
+              <span id="lenSpecB" class="mono">0 lines</span>
+            </div>
+          </div>
+          <textarea id="specBInput" class="spec-textarea" rows="10" placeholder="Paste Target OpenAPI/Swagger JSON or YAML here..."></textarea>
+        </div>
+      </div>
+
+      <div class="actions-bar">
+        <div class="btn-group-wrap">
+          <button type="button" id="runDiffBtn" class="btn btn-carbon">Run Semantic Drift Diff</button>
+          <button type="button" id="clearSpecsBtn" class="btn btn-secondary">Clear</button>
+        </div>
+        <span class="muted-xs">
+          Parsed locally in browser memory · Internal API specs never leave your machine
+        </span>
+      </div>
+    </section>
+
+    <!-- EMPTY NOTE BEFORE FIRST RUN -->
+    <div id="emptyStateNote" class="empty-note no-print">
+      <span><strong>Deterministic Spec Gate:</strong> Instead of uploading proprietary APIs to cloud SaaS or discovering breaks after deploy, diff OpenAPI 3.0/3.1 &amp; Swagger 2.0 YAML/JSON in browser memory across Backward &amp; Forward compatibility rules.</span>
+      <span class="mono muted-xs">AST Diff: paths · verbs · params · schemas · SARIF 2.1.0</span>
+    </div>
+
+    <div class="print-only">
+      <h1 class="workbench-h1">API Drift Sentinel — Breaking Change Report</h1>
+      <p class="muted-sm">Client-side semantic AST comparison report</p>
+    </div>
+
+    <!-- RESULTS WORKBENCH -->
+    <section id="resultsSection" class="results-section" hidden aria-label="Diff analysis results">
+
+      <div id="sampleDemoBanner" class="callout callout-sample no-print" hidden>
+        <strong>Sample Demo Dataset:</strong> Displaying semantic diff output for built-in test OpenAPI specs. Paste your own v1 and v2 specifications above to audit live contracts.
+      </div>
+
+      <div id="breakingAlertBanner" class="callout callout-breaking" hidden>
+        <div>
+          <div class="callout-title">Breaking Changes Detected — Major SemVer Increment Required</div>
+          <p class="muted-sm mt-1">This diff contains contract mutations that may break existing SDKs or client consumers.</p>
+        </div>
+        <button type="button" id="btn-inspect-breaking" class="btn btn-secondary btn-sm no-print">Filter Breaking Only</button>
+      </div>
+
+      <!-- Summary Strip -->
+      <div class="metrics-strip tnum">
+        <div class="metric-cell">
+          <div class="metric-label">Stability Score</div>
+          <div id="scoreValue" class="metric-val">--</div>
+          <div id="scoreLabel" class="metric-sub">Awaiting diff</div>
+        </div>
+        <div class="metric-cell" id="breakingCard">
+          <div class="metric-label">Breaking Changes</div>
+          <div id="statBreaking" class="metric-val is-fail">--</div>
+          <div id="statBreakingSub" class="metric-sub">Pending diff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Non-Breaking</div>
+          <div id="statNonBreaking" class="metric-val">--</div>
+          <div class="metric-sub">Backward-compatible additions</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Recommended SemVer</div>
+          <div id="statSemVer" class="metric-val">--</div>
+          <div id="statSemVerSub" class="metric-sub">Pending diff</div>
+        </div>
+      </div>
+
+      <!-- Filter & Export Bar -->
+      <div class="toolbar no-print">
+        <div class="filter-group tnum">
+          <button type="button" id="filter-ALL" class="filter-btn is-active" data-filter="ALL">All (<span id="count-ALL">0</span>)</button>
+          <button type="button" id="filter-BREAKING" class="filter-btn" data-filter="BREAKING">Breaking (<span id="count-BREAKING">0</span>)</button>
+          <button type="button" id="filter-NON_BREAKING" class="filter-btn" data-filter="NON_BREAKING">Non-Breaking (<span id="count-NON_BREAKING">0</span>)</button>
+        </div>
+        <div class="export-group">
+          <button type="button" id="btn-dl-md" class="btn btn-secondary btn-sm">Export Changelog (.md)</button>
+          <button type="button" id="btn-dl-json" class="btn btn-secondary btn-sm">Export JSON</button>
+          <button type="button" id="btn-dl-sarif" class="btn btn-secondary btn-sm">Export SARIF</button>
+          <button type="button" id="btn-print" class="btn btn-carbon btn-sm">Print / PDF</button>
+        </div>
+      </div>
+
+      <!-- Split Rail + Carbon Diff Output -->
+      <div class="diff-split">
+        <aside class="endpoint-rail no-print" aria-label="Affected contract paths">
+          <div class="rail-head">Affected Paths</div>
+          <div id="endpointRailList" class="endpoint-list"></div>
+        </aside>
+
+        <div class="carbon-diff-pane">
+          <div class="carbon-pane-head">
+            <span class="mono">SEMANTIC DIFF STREAM</span>
+            <span id="paneSummaryMeta" class="mono tnum">0 items</span>
+          </div>
+          <div id="changesContainer" class="diff-list"></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- STATIC WAITLIST SECTION (0-EUR VALIDATION MODE) -->
+  <section id="pro-waitlist" class="waitlist-section no-print" aria-labelledby="waitlist-heading">
+    <div class="waitlist-card">
+      <div>
+        <span class="kicker">Upcoming Release · Waitlist</span>
+        <div><span class="price-badge-pill">Planned launch price: 24 € (one-time, VAT incl.) · 0 € today — Priority Waitlist</span></div>
+        <h2 id="waitlist-heading" class="waitlist-title">API Drift Sentinel Pro — Multi-File $ref Bundler &amp; CI Toolkit (Waitlist)</h2>
+        <p class="waitlist-desc">
+          The free browser workbench and <span class="mono">cli.js</span> handle single-file OpenAPI comparisons with Markdown, JSON, and SARIF 2.1.0 exports. Join the validation waitlist if your engineering team needs multi-file pipeline automation (zero charge today):
+        </p>
+        <ul class="waitlist-features">
+          <li>Zero-dependency multi-file OpenAPI <span class="mono">$ref</span> bundler (<span class="mono">bundler.js</span>) resolving external <span class="mono">./schemas/*.yaml</span> and JSON files recursively with cycle protection.</li>
+          <li>Multi-version changelog archive runner (<span class="mono">archive-diff.js</span>) + Slack/Discord webhook payload generator (<span class="mono">webhook-notify.js</span>).</li>
+          <li>Ready-to-drop GitHub Actions SARIF 2.1.0 Code Scanning PR gate (<span class="mono">.github/workflows/api-drift-sarif.yml</span>) blocking breaking changes on pull requests.</li>
+        </ul>
+      </div>
+
+      <form id="proWaitlistForm" class="waitlist-form" data-project="api-drift-sentinel" novalidate>
+        <label for="proWaitlistAdvice" class="field-label">Primary workflow need (optional)</label>
+        <select id="proWaitlistAdvice" class="field-input">
+          <option value="multifile_ref_bundler">Multi-file external $ref bundler (YAML/JSON)</option>
+          <option value="github_actions_sarif">GitHub Actions SARIF 2.1.0 PR gate</option>
+          <option value="archive_webhooks">Multi-version changelog archive &amp; Slack/Discord webhooks</option>
+        </select>
+        <label for="proWaitlistEmail" class="field-label">Notify email (zero charge or obligation)</label>
+        <div class="waitlist-input-row">
+          <input type="email" id="proWaitlistEmail" class="field-input" placeholder="dev@company.com" required />
+          <button type="submit" id="proWaitlistSubmit" class="btn btn-carbon">Join Waitlist</button>
+        </div>
+        <label class="waitlist-consent">
+          <input type="checkbox" id="proWaitlistConsent" required />
+          <span>I explicitly consent to receive a one-time notification when API Drift Sentinel Pro launches, in line with the <a href="privacy.html">Privacy &amp; Legal Notice</a> (GDPR Art. 6(1)(a), opt out anytime).</span>
+        </label>
+        <p id="proWaitlistMsg" class="waitlist-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="faq-section no-print" aria-label="Frequently Asked Questions">
+    <div class="faq-card">
+      <h2 class="faq-heading">Frequently Asked Questions (OpenAPI Diff &amp; Breaking Change Gates)</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Does API Drift Sentinel upload my OpenAPI or Swagger specifications to external servers?</summary>
+          <p>No. Specification parsing, internal <span class="mono">$ref</span> resolution, and AST diffing execute strictly inside your local browser memory with zero backend upload and zero third-party network requests.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Which OpenAPI versions and breaking change rules are checked?</summary>
+          <p>API Drift Sentinel supports OpenAPI 3.0, OpenAPI 3.1 (including type-null union equivalence), and Swagger 2.0 in JSON or YAML 1.2. It checks removed paths and methods, security schemes, request/response media types, asymmetric enum mutations, <span class="mono">allOf</span>/<span class="mono">oneOf</span>/<span class="mono">anyOf</span> composition, and <span class="mono">readOnly</span>/<span class="mono">writeOnly</span> rules.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What does API Drift Sentinel Pro add beyond the free web workbench and CLI?</summary>
+          <p>The free web app and <span class="mono">cli.js</span> handle single-file specs with Markdown, JSON, and SARIF 2.1.0 output. API Drift Sentinel Pro (planned 24 EUR one-time launch price, currently 0 EUR Priority Waitlist) adds a zero-dependency multi-file <span class="mono">$ref</span> bundler for split YAML/JSON folders, multi-version changelog archive tooling, Slack/Discord webhook payload formatting, and GitHub Actions SARIF PR gates.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer no-print">
+    <nav class="footer-tools-nav" aria-label="Conversionlogic Developer and Audit Suite">
+      <strong>Conversionlogic Suite:</strong>
+      <a class="footer-tool-link" href="https://mitsaken.github.io/refintegrity/" target="_blank" rel="noopener noreferrer">RefIntegrity</a>
+      <a class="footer-tool-link" href="https://mitsaken.github.io/policydelta-radar/" target="_blank" rel="noopener noreferrer">PolicyDelta Radar</a>
+      <a class="footer-tool-link" href="https://scopekit-gr.pages.dev/" target="_blank" rel="noopener noreferrer">ScopeKit GR</a>
+      <a class="footer-tool-link" href="https://eshop-compliance-doctor.pages.dev/" target="_blank" rel="noopener noreferrer">eShop Compliance Audit</a>
+      <a class="footer-tool-link" href="https://greek-procurement-radar.pages.dev/" target="_blank" rel="noopener noreferrer">Greek Procurement Radar</a>
+      <a class="footer-tool-link" href="https://espa-screener-gr.pages.dev/" target="_blank" rel="noopener noreferrer">ESPA Screener</a>
+      <a class="footer-tool-link" href="https://athens-rental-monitor.pages.dev/" target="_blank" rel="noopener noreferrer">Athens Rental Monitor</a>
+      <a class="footer-tool-link" href="https://athens-relocation-matrix.pages.dev/" target="_blank" rel="noopener noreferrer">Athens Expat Matrix</a>
+      <a class="footer-tool-link" href="https://praktika-gr.pages.dev/" target="_blank" rel="noopener noreferrer">Praktika GR</a>
+    </nav>
+    <div class="footer-inner">
+      <span><strong>API Drift Sentinel</strong> · Conversionlogic · <a href="privacy.html" class="footer-tool-link">Privacy &amp; Legal Notice</a> · Updated: 2026-11-19</span>
+      <span>100% browser memory · 0 third-party network requests · 0€ Validation Mode</span>
+    </div>
+  </footer>
+
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
